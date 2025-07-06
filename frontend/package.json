@@ -2,6 +2,24 @@
   "name": "frontend",
   "private": true,
   "version": "0.0.0",
+  "type": "module",
+  "description": "Frontend for the Ecommerce Store",
+  "author": "Celebal Technologies",
+  "license": "ISC",
+  "keywords": [
+    "ecommerce",
+    "store",
+    "react",
+    "redux",
+    "tailwindcss",
+    "vite",
+    "paypal",
+    "charts",
+    "authentication",
+    "routing",  
+    "toast",
+    "slick-carousel"
+  ],
   
   "scripts": {
     "dev": "vite",
