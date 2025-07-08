@@ -17,12 +17,12 @@ export const authenticate = asyncHandler(async (req, res, next) => {
             req.user = await User.findById(decoded.userId).select("-password");
             next();
         } catch (error) {
-            res.status(401);
+            res.status(401).json({ message: "Not authorized, token failed" });
             throw new Error("Not authorized, token failed");
         }
     } else {
-        res.status(401);
-            throw new Error("Not authorized, token not found");
+        res.status(401).json({ message: "Not authorized, token not found"});
+        throw new Error("Not authorized, token not found");
     }
 });
 
