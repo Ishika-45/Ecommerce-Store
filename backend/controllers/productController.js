@@ -185,6 +185,30 @@ const fetchNewProducts = asyncHandler(async (req,res) => {
         console.error(error);
         res.status(500).json({ message: "Server error", error: error.message });
     }
-})
+});
 
-export { addProduct, updateProductDetails, removeProduct, fetchProducts, fetchProductById, fetchAllProducts, addProductReview , fetchTopProducts , fetchNewProducts};
+const filterProducts = asyncHandler(async (req, res) => {
+    try {
+        const { checked , radio} = req.body;
+
+        let args = {};
+
+        if (checked.length > 0) {
+            args.category = { $in: checked };
+        }
+        if (radio.length) {
+            args.price = {
+                $gte: radio[0],
+                $lte: radio[1],
+            };
+        }
+
+        const products = await Product.find(args).populate("category").sort({ createdAt: -1 });
+        res.status(200).json(products);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+});
+
+export { addProduct, updateProductDetails, removeProduct, fetchProducts, fetchProductById, fetchAllProducts, addProductReview , fetchTopProducts , fetchNewProducts , filterProducts };
