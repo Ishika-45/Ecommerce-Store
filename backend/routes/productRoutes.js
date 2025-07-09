@@ -13,7 +13,7 @@ router.route("/").get(fetchProducts).post(authenticate, isAdmin, formidable(), a
 
 router.route("/allproducts").get(fetchAllProducts);
 
-router.route("/:id/reviews").post(authenticate, isAdmin, checkId, addProductReview);
+router.route("/:id/reviews").post(authenticate, checkId, addProductReview);
 
 router.get("/top", fetchTopProducts)
 router.get("/new", fetchNewProducts)
