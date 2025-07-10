@@ -1,19 +1,19 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
-import { apiSlice } from "../api/apiSlice";
-import { authReducer } from "./auth/authSlice";
-import { favoriteReducer } from "./favorites/favoriteSlice";
+import { apiSlice } from "./api/apiSlice";
+import { authReducer } from "./features/auth/authSlice";
+import { favoritesReducer } from "./features/favorites/favoriteSlice"
 import { getFavoritesFromLocalStorage } from "../Utils/localStorage";
-import cartSliceReducer from "./cart/cartSlice";
-import shopReducer from "./shop/shopSlice";
+import cartSliceReducer from "./features/cart/cartSlice"
+import shopReducer from "./features/shop/shopSlice";
 
 const initialFavorites = getFavoritesFromLocalStorage() || [];
 
 export const store = configureStore({
-  reducer: {    
+  reducer: {
     [apiSlice.reducerPath]: apiSlice.reducer,
     auth: authReducer,
-    favorites: favoriteReducer,
+    favorites: favoritesReducer,
     cart: cartSliceReducer,
     shop: shopReducer,
   },
@@ -22,7 +22,8 @@ export const store = configureStore({
       favorites: initialFavorites,
     },
     middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware().concat(apiSlice.middleware),
+      getDefaultMiddleware().concat(apiSlice.middleware),
     devTools: true,
+  }
 });
 setupListeners(store.dispatch);
