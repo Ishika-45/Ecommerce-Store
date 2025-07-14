@@ -13,6 +13,7 @@ export const removeFromFavoritesFromLocalStorage = (productId) => {
   const updatedFavorites = favorites.filter(item => item._id !== productId);
   localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
 }
+
 export const getFavoritesFromLocalStorage = () => {
   const favoritesJSON = localStorage.getItem("favorites");
   return favoritesJSON ? JSON.parse(favoritesJSON) : [];

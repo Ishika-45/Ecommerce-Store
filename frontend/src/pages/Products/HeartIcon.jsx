@@ -7,11 +7,13 @@ import {
   setFavorites,
 } from "../../redux/features/favorites/favoriteSlice";
 
-import {
-  addFavoriteToLocalStorage,
-  getFavoritesFromLocalStorage,
-  removeFavoriteFromLocalStorage,
-} from "../../Utils/localStorage";
+// import {
+//   addFavoriteToLocalStorage,
+//   getFavoritesFromLocalStorage,
+//   removeFavoriteFromLocalStorage,
+// } from "../../Utils/localStorage";
+
+import { addToFavoritesToLocalStorage, getFavoritesFromLocalStorage, removeFromFavoritesFromLocalStorage } from "../../Utils/localStorage";
 
 const HeartIcon = ({ product }) => {
   const dispatch = useDispatch();
@@ -27,11 +29,11 @@ const HeartIcon = ({ product }) => {
     if (isFavorite) {
       dispatch(removeFromFavorites(product));
       // remove the product from the localStorage as well
-      removeFavoriteFromLocalStorage(product._id);
+      removeFromFavoritesFromLocalStorage(product._id);
     } else {
       dispatch(addToFavorites(product));
       // add the product to localStorage as well
-      addFavoriteToLocalStorage(product);
+      addToFavoritesToLocalStorage(product);
     }
   };
 

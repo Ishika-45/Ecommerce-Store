@@ -7,16 +7,23 @@ import Product from "./Products/Product";
 
 const Home = () => {
   const { keyword } = useParams();
-  const { data, isLoading, isError } = useGetProductsQuery({ keyword });
+  const {
+    data,
+    isLoading,
+    isError,
+    error, // Destructuring error object for proper handling
+  } = useGetProductsQuery({ keyword });
 
   return (
     <>
-      {!keyword ? <Header /> : null}
+      {!keyword && <Header />}
+
       {isLoading ? (
         <Loader />
       ) : isError ? (
         <Message variant="danger">
-          {isError?.data.message || isError.error}
+          {/* Safe access to error message */}
+          {error?.data?.message ?? error?.message ?? "Something went wrong"}
         </Message>
       ) : (
         <>
@@ -35,7 +42,7 @@ const Home = () => {
 
           <div>
             <div className="flex justify-center flex-wrap mt-[2rem]">
-              {data.products.map((product) => (
+              {data?.products?.map((product) => (
                 <div key={product._id}>
                   <Product product={product} />
                 </div>
