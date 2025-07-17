@@ -18,7 +18,9 @@ const ProductList = () => {
   const [brand, setBrand] = useState("");
   const [stock, setStock] = useState(0);
   const [imageUrl, setImageUrl] = useState(null);
+
   const navigate = useNavigate();
+  const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   const [uploadProductImage] = useUploadProductImageMutation();
   const [createProduct] = useCreateProductMutation();
@@ -28,39 +30,36 @@ const ProductList = () => {
     e.preventDefault();
 
     try {
-      const productData = new FormData();
-      productData.append("image", image);
-      productData.append("name", name);
-      productData.append("description", description);
-      productData.append("price", price);
-      productData.append("category", category);
-      productData.append("quantity", quantity);
-      productData.append("brand", brand);
-      productData.append("countInStock", stock);
+      const productData = {
+        name,
+        description,
+        price,
+        category,
+        quantity,
+        brand,
+        countInStock: stock,
+        image: imageUrl, // backend path (e.g. /uploads/image.jpg)
+      };
 
-      const { data } = await createProduct(productData);
-
-      if (data.error) {
-        toast.error("Product create failed. Try Again.");
-      } else {
-        toast.success(`${data.name} is created`);
-        navigate("/");
-      }
+      const res = await createProduct(productData).unwrap();
+      toast.success(`${res.name} is created`);
+      navigate("/");
     } catch (error) {
       console.error(error);
-      toast.error("Product create failed. Try Again.");
+      toast.error("Product creation failed. Try again.");
     }
   };
 
   const uploadFileHandler = async (e) => {
+    const file = e.target.files[0];
     const formData = new FormData();
-    formData.append("image", e.target.files[0]);
+    formData.append("image", file);
 
     try {
       const res = await uploadProductImage(formData).unwrap();
       toast.success(res.message);
-      setImage(res.image);
-      setImageUrl(res.image);
+      setImage(file); // only used for label display
+      setImageUrl(`${BACKEND_BASE_URL}${res.image}`); // preview + backend image path
     } catch (error) {
       toast.error(error?.data?.message || error.error);
     }
@@ -71,7 +70,7 @@ const ProductList = () => {
       <div className="flex flex-col md:flex-row">
         <AdminMenu />
         <div className="md:w-3/4 p-3">
-          <div className="h-12">Create Product</div>
+          <h2 className="text-xl font-bold mb-4">Create Product</h2>
 
           {imageUrl && (
             <div className="text-center">
@@ -86,21 +85,20 @@ const ProductList = () => {
           <div className="mb-3">
             <label className="border text-white px-4 block w-full text-center rounded-lg cursor-pointer font-bold py-11">
               {image ? image.name : "Upload Image"}
-
               <input
                 type="file"
                 name="image"
                 accept="image/*"
                 onChange={uploadFileHandler}
-                className={!image ? "hidden" : "text-white"}
+                className="hidden"
               />
             </label>
           </div>
 
-          <div className="p-3">
+          <form onSubmit={handleSubmit} className="p-3">
             <div className="flex flex-wrap">
-              <div className="one">
-                <label htmlFor="name">Name</label> <br />
+              <div>
+                <label>Name</label>
                 <input
                   type="text"
                   className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white"
@@ -108,8 +106,8 @@ const ProductList = () => {
                   onChange={(e) => setName(e.target.value)}
                 />
               </div>
-              <div className="two ml-10 ">
-                <label htmlFor="name block">Price</label> <br />
+              <div className="ml-10">
+                <label>Price</label>
                 <input
                   type="number"
                   className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white"
@@ -118,9 +116,10 @@ const ProductList = () => {
                 />
               </div>
             </div>
+
             <div className="flex flex-wrap">
-              <div className="one">
-                <label htmlFor="name block">Quantity</label> <br />
+              <div>
+                <label>Quantity</label>
                 <input
                   type="number"
                   className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white"
@@ -128,8 +127,8 @@ const ProductList = () => {
                   onChange={(e) => setQuantity(e.target.value)}
                 />
               </div>
-              <div className="two ml-10 ">
-                <label htmlFor="name block">Brand</label> <br />
+              <div className="ml-10">
+                <label>Brand</label>
                 <input
                   type="text"
                   className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white"
@@ -139,11 +138,8 @@ const ProductList = () => {
               </div>
             </div>
 
-            <label htmlFor="" className="my-5">
-              Description
-            </label>
+            <label>Description</label>
             <textarea
-              type="text"
               className="p-2 mb-3 bg-[#101011] border rounded-lg w-[95%] text-white"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -151,22 +147,22 @@ const ProductList = () => {
 
             <div className="flex justify-between">
               <div>
-                <label htmlFor="name block">Count In Stock</label> <br />
+                <label>Count In Stock</label>
                 <input
-                  type="text"
+                  type="number"
                   className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white"
                   value={stock}
                   onChange={(e) => setStock(e.target.value)}
                 />
               </div>
-
               <div>
-                <label htmlFor="">Category</label> <br />
+                <label>Category</label>
                 <select
-                  placeholder="Choose Category"
                   className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white"
                   onChange={(e) => setCategory(e.target.value)}
+                  value={category}
                 >
+                  <option value="">-- Select --</option>
                   {categories?.map((c) => (
                     <option key={c._id} value={c._id}>
                       {c.name}
@@ -177,12 +173,12 @@ const ProductList = () => {
             </div>
 
             <button
-              onClick={handleSubmit}
+              type="submit"
               className="py-4 px-10 mt-5 rounded-lg text-lg font-bold bg-pink-600"
             >
               Submit
             </button>
-          </div>
+          </form>
         </div>
       </div>
     </div>
